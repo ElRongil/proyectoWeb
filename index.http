@@ -1,4 +1,4 @@
-### Cursos nivel avanzado
+### Estado de la API
 GET http://localhost:3000/api/health
 
 ### Registro de usuario
@@ -47,7 +47,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
 
 {
   "name": "Mi Empresa SL",
-  "cif": "B12345678",
+  "cif": "B12345671",
   "isFreelance": false,
   "address": {
     "street": "Calle Mayor",
@@ -107,3 +107,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
   "name": "Juan",
   "lastName": "Pérez"
 }
+
