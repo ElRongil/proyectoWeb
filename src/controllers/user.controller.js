@@ -280,3 +280,51 @@ export const changePassword = async (req, res, next) => {
     next(error);
   }
 };
+export const inviteUser = async (req, res, next) => {
+  try {
+    const inviter = req.user;
+
+    if (inviter.role !== 'admin') {
+      throw AppError.forbidden('Solo los administradores pueden invitar usuarios');
+    }
+
+    const { email, name, lastName } = req.body;
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      throw AppError.conflict('El email ya está registrado');
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Contraseña temporal
+    const tempPassword = Math.random().toString(36).slice(-10);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    const invitedUser = await User.create({
+      email,
+      name,
+      lastName,
+      role: 'guest',
+      status: 'pending',
+      verificationCode,
+      verificationAttempts: 3,
+      company: inviter.company,
+      password: hashedPassword
+    });
+
+    notificationEmitter.emit('user:invited', invitedUser);
+
+    res.status(201).json({
+      message: 'Usuario invitado correctamente',
+      invited: {
+        email: invitedUser.email,
+        role: invitedUser.role,
+        company: invitedUser.company
+      }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};

@@ -43,3 +43,8 @@ export const changePasswordSchema = z.object({
   message: 'La nueva contraseña debe ser diferente a la actual',
   path: ['newPassword']
 });
+export const inviteUserSchema = z.object({
+  email: z.string().email().transform(v => v.toLowerCase().trim()),
+  name: z.string().min(1),
+  lastName: z.string().min(1)
+});

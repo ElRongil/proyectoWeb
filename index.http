@@ -32,7 +32,7 @@ Content-Type: application/json
 ### Onboarding datos personales
 PUT http://localhost:3000/api/user/register
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU1OTg0ODQsImV4cCI6MTc3NTU5OTM4NH0.GfXgRMdjpUd-gE8H9RlOWcr8KkThIWY7_lrQQxy64qg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDQ0MTIsImV4cCI6MTc3NTYwNTMxMn0.v7fuZ4AsK-rc4nCi9Y9y361W9YYKwLvF1IXDwcpfcjQ
 
 {
   "name": "Manuel",
@@ -43,7 +43,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
 ### Onboarding company
 PATCH http://localhost:3000/api/user/company
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU1OTk1MjEsImV4cCI6MTc3NTYwMDQyMX0.QKSvSXM5MSUv_st8ZChHp6KYcmqDhxPuVcmlEAfxArk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDQ0MTIsImV4cCI6MTc3NTYwNTMxMn0.v7fuZ4AsK-rc4nCi9Y9y361W9YYKwLvF1IXDwcpfcjQ
 
 {
   "name": "Mi Empresa SL",
@@ -52,7 +52,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
   "address": {
     "street": "Calle Mayor",
     "number": "1",
-    "postal": "28001",
+    "postal": "28221",
     "city": "Madrid",
     "province": "Madrid"
   }
@@ -96,4 +96,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
 {
   "currentPassword": "87654321",
   "newPassword": "12345678"
+}
+### Invitar usuario
+POST http://localhost:3000/api/user/invite
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDQxNDgsImV4cCI6MTc3NTYwNTA0OH0.OVAamxREegFGy_adpCHa6o49vasqnUCUW-yidkYVPm0
+
+{
+  "email": "nuevoinvitado@test.com",
+  "name": "Juan",
+  "lastName": "Pérez"
 }
