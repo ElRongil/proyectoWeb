@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 import app from './app.js';
 import config from './config/index.js';
 
-console.log('URI:', config.mongoUri); // ← añade esto
 
 const start = async () => {
   try {
