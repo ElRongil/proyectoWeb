@@ -107,3 +107,93 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
+export const updatePersonalData = async (req, res, next) => {
+  try {
+    const { name, lastName, nif } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, lastName, nif },
+      { new: true }
+    );
+
+    res.json({ user });
+
+  } catch (error) {
+    next(error);
+  }
+};
+import Company from '../models/company.js';
+
+export const updateCompany = async (req, res, next) => {
+  try {
+    const { name, cif, isFreelance, address } = req.body;
+    const user = req.user;
+
+    let company;
+
+    if (isFreelance) {
+      // Autónomo: usa sus propios datos
+      company = await Company.findOneAndUpdate(
+        { cif: user.nif },
+        {
+          owner: user._id,
+          name: user.name,
+          cif: user.nif,
+          address: user.address,
+          isFreelance: true
+        },
+        { upsert: true, new: true }
+      );
+      user.role = 'admin';
+    } else {
+      // Buscar si ya existe una company con ese CIF
+      const existing = await Company.findOne({ cif });
+
+      if (existing) {
+        // Unirse a company existente como guest
+        company = existing;
+        user.role = 'guest';
+      } else {
+        // Crear nueva company
+        company = await Company.create({
+          owner: user._id,
+          name,
+          cif,
+          address,
+          isFreelance: false
+        });
+        user.role = 'admin';
+      }
+    }
+
+    user.company = company._id;
+    await user.save();
+
+    res.json({ company, role: user.role });
+
+  } catch (error) {
+    next(error);
+  }
+};
+export const uploadLogo = async (req, res, next) => {
+  try {
+    if (!req.file) throw AppError.badRequest('No se ha subido ninguna imagen');
+
+    const user = req.user;
+    if (!user.company) throw AppError.badRequest('El usuario no tiene compañía asignada');
+
+    const logoUrl = `${process.env.PUBLIC_URL}/uploads/${req.file.filename}`;
+
+    const company = await Company.findByIdAndUpdate(
+      user.company,
+      { logo: logoUrl },
+      { new: true }
+    );
+
+    res.json({ logo: company.logo });
+
+  } catch (error) {
+    next(error);
+  }
+};

@@ -6,6 +6,12 @@ import mongoSanitize from '@exortek/express-mongo-sanitize'
 
 import userRoutes from './routes/user.routes.js'
 import AppError from './utils/appError.js'
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express()
 
@@ -26,6 +32,8 @@ app.use(express.json({ limit: '10kb' }))
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/user', userRoutes)
 

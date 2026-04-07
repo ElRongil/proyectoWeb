@@ -5,7 +5,37 @@ GET http://localhost:3000/api/health
 POST http://localhost:3000/api/user/register
 Content-Type: application/json
 
+{ 
+    "email": "test5@test.com", 
+    "password": "12345678" 
+}
+
+### Validación de email
+PUT http://localhost:3000/api/user/validation
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU1OTc4NzAsImV4cCI6MTc3NTU5ODc3MH0.QM8Y0F0R-3e5wQYh-0kcPjRZWiLmSCf9uCiclrRUrJo
+
 {
-  "email": "test@test.com",
+  "code": "391838"
+}
+
+
+### Login
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+  "email": "test5@test.com",
   "password": "12345678"
+}
+
+### Onboarding datos personales
+PUT http://localhost:3000/api/user/register
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU1OTg0ODQsImV4cCI6MTc3NTU5OTM4NH0.GfXgRMdjpUd-gE8H9RlOWcr8KkThIWY7_lrQQxy64qg
+
+{
+  "name": "Manuel",
+  "lastName": "Albizu",
+  "nif": "12345678A"
 }
