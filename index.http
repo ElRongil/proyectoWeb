@@ -1,0 +1,11 @@
+### Cursos nivel avanzado
+GET http://localhost:3000/api/health
+
+### Registro de usuario
+POST http://localhost:3000/api/user/register
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "12345678"
+}
