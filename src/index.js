@@ -23,4 +23,10 @@ const start = async () => {
   }
 };
 
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('🔌 Conexión cerrada');
+  process.exit(0);
+});
+
 start();
