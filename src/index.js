@@ -1,10 +1,18 @@
+import { setDefaultResultOrder } from 'dns';
+setDefaultResultOrder('ipv4first');
+
 import mongoose from 'mongoose';
 import app from './app.js';
 import config from './config/index.js';
 
+console.log('URI:', config.mongoUri); // ← añade esto
+
 const start = async () => {
   try {
-    await mongoose.connect(config.mongoUri);
+    await mongoose.connect(config.mongoUri, {
+      serverSelectionTimeoutMS: 5000,
+      family: 4  // fuerza IPv4
+    });
     console.log('✅ Conectado a MongoDB');
 
     app.listen(config.port, () => {
