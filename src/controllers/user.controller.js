@@ -1,24 +1,22 @@
 import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
-import { signToken, signRefreshToken } from '../utils/jwt.js';
+import { signToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import notificationEmitter from '../services/notification.service.js';
 import AppError from '../utils/appError.js';
+import RefreshToken from '../models/refreshToken.js';
+
 
 export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Verificar si el email ya existe y está verificado
     const existing = await User.findOne({ email, status: 'verified' });
     if (existing) throw AppError.conflict('El email ya está registrado');
 
-    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generar código de verificación de 6 dígitos
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Crear usuario
     const user = await User.create({
       email,
       password: hashedPassword,
@@ -26,15 +24,11 @@ export const register = async (req, res, next) => {
       verificationAttempts: 3
     });
 
-    // Generar tokens
     const accessToken = signToken({ _id: user._id, role: user.role });
     const refreshToken = signRefreshToken({ _id: user._id });
 
-    // Guardar refresh token en el usuario
-    user.refreshToken = refreshToken;
-    await user.save();
+    await RefreshToken.create({ token: refreshToken, user: user._id });
 
-    // Emitir evento
     notificationEmitter.emit('user:registered', user);
 
     res.status(201).json({
@@ -78,23 +72,17 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario con password (select: false por defecto)
     const user = await User.findOne({ email, deleted: false }).select('+password');
     if (!user) throw AppError.unauthorized('Credenciales incorrectas');
 
-    // Verificar contraseña
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw AppError.unauthorized('Credenciales incorrectas');
 
-    // Generar tokens
     const accessToken = signToken({ _id: user._id, role: user.role });
     const refreshToken = signRefreshToken({ _id: user._id });
 
-    // Guardar refresh token
-    user.refreshToken = refreshToken;
-    await user.save();
+    await RefreshToken.create({ token: refreshToken, user: user._id });
 
-    // Emitir evento
     notificationEmitter.emit('user:logged', user);
 
     res.json({
@@ -195,5 +183,39 @@ export const uploadLogo = async (req, res, next) => {
 
   } catch (error) {
     next(error);
+  }
+};
+export const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate('company');
+    res.json({ data: user });
+  } catch (err) {
+    next(AppError.internal());
+  }
+};
+export const refresh = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) throw AppError.badRequest('Refresh token requerido');
+
+    const stored = await RefreshToken.findOne({ token: refreshToken });
+    if (!stored) throw AppError.unauthorized('Refresh token inválido');
+
+    const payload = verifyRefreshToken(refreshToken);
+    const newToken = signToken({ _id: payload._id, role: payload.role });
+
+    res.json({ token: newToken });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    await RefreshToken.deleteOne({ token: refreshToken });
+    res.json({ message: 'Sesión cerrada correctamente' });
+  } catch (err) {
+    next(AppError.internal());
   }
 };

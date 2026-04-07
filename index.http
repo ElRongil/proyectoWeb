@@ -39,3 +39,43 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZ
   "lastName": "Albizu",
   "nif": "12345678A"
 }
+
+### Onboarding company
+PATCH http://localhost:3000/api/user/company
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU1OTk1MjEsImV4cCI6MTc3NTYwMDQyMX0.QKSvSXM5MSUv_st8ZChHp6KYcmqDhxPuVcmlEAfxArk
+
+{
+  "name": "Mi Empresa SL",
+  "cif": "B12345678",
+  "isFreelance": false,
+  "address": {
+    "street": "Calle Mayor",
+    "number": "1",
+    "postal": "28001",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+###La peticion del logo la tuve que hacer con el postman pero funciona.
+### Obtener usuario
+GET http://localhost:3000/api/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDAxNzIsImV4cCI6MTc3NTYwMTA3Mn0.6YKQGc7PtZM7MpLW6Mg4IQtAmzuh3YXKdgURvQS0k0s
+
+### Refresh token
+POST http://localhost:3000/api/user/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDE3NjUsImV4cCI6MTc3NjIwNjU2NX0.8AP5FXn7011knInBE2oJlTHRc5KwNAug63e6WmKjhz8"
+}
+
+### Logout
+POST http://localhost:3000/api/user/logout
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDA0MzQsImV4cCI6MTc3NTYwMTMzNH0.xHeuV8tRO5_YqBVTTLxDoHBYzii-jmcabDNiDRr0pvA
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDA0MzQsImV4cCI6MTc3NjIwNTIzNH0.m7cYAWw1YcheW3wj10PVRzPG4YDuheuNF2osUI0Tt5Q"
+}

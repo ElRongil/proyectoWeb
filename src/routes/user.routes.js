@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate.js";
 import authMiddleware from '../middleware/auth.middleware.js';
-import { register, verifyEmail, login, updatePersonalData, updateCompany, uploadLogo } from '../controllers/user.controller.js';
+import { register, verifyEmail, login, updatePersonalData, updateCompany, uploadLogo , getUser, refresh, logout} from '../controllers/user.controller.js';
 import { registerSchema, validationCodeSchema, loginSchema, personalDataSchema, companySchema } from '../validators/user.validator.js';
 import upload from '../middleware/upload.js';
 
@@ -15,5 +15,8 @@ router.post('/login', validate(loginSchema), login);
 router.put('/register', authMiddleware, validate(personalDataSchema), updatePersonalData);
 router.patch('/company', authMiddleware, validate(companySchema), updateCompany);
 router.patch('/logo', authMiddleware, upload.single('logo'), uploadLogo);
+router.get('/', authMiddleware, getUser);
+router.post('/refresh', refresh);
+router.post('/logout', authMiddleware, logout);
 
 export default router;
