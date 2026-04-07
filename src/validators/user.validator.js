@@ -35,3 +35,11 @@ export const companySchema = z.object({
     province: z.string().optional()
   }).optional()
 });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8, 'La contraseña actual es obligatoria'),
+  newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres')
+}).refine(data => data.currentPassword !== data.newPassword, {
+  message: 'La nueva contraseña debe ser diferente a la actual',
+  path: ['newPassword']
+});

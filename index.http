@@ -6,7 +6,7 @@ POST http://localhost:3000/api/user/register
 Content-Type: application/json
 
 { 
-    "email": "test5@test.com", 
+    "email": "test7@test.com", 
     "password": "12345678" 
 }
 
@@ -68,14 +68,32 @@ POST http://localhost:3000/api/user/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDE3NjUsImV4cCI6MTc3NjIwNjU2NX0.8AP5FXn7011knInBE2oJlTHRc5KwNAug63e6WmKjhz8"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDQxMzcsImV4cCI6MTc3NjIwODkzN30.BR_ERwMhbeldvYTcm0R9bOt8g4Me3i1XeJceRcvqmfA"
 }
 
 ### Logout
 POST http://localhost:3000/api/user/logout
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDA0MzQsImV4cCI6MTc3NTYwMTMzNH0.xHeuV8tRO5_YqBVTTLxDoHBYzii-jmcabDNiDRr0pvA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzU2MDE5MTgsImV4cCI6MTc3NTYwMjgxOH0.OB5jc0TJ9-7OhHzul1YRCB49IjbQ4l0SiZuPa3naU6Q
 
 {
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDA0MzQsImV4cCI6MTc3NjIwNTIzNH0.m7cYAWw1YcheW3wj10PVRzPG4YDuheuNF2osUI0Tt5Q"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDE5MTgsImV4cCI6MTc3NjIwNjcxOH0.pKFr8CY0UGP9u1Pzicqxcd7kXjfHpEhsqUaFtl7QAxI"
+}
+
+### Soft delete
+DELETE http://localhost:3000/api/user?soft=true
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1OGZlMjE3ZjQzYjgwZDYyNGM0NWEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU2MDM2ODIsImV4cCI6MTc3NTYwNDU4Mn0.NbWcLgYV7_zpty8r7ZSuqsudg8TD87Ak1rks2FkqlrY
+
+### Hard delete
+DELETE http://localhost:3000/api/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1OTAxOTE3ZjQzYjgwZDYyNGM0NWMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU2MDM3MzcsImV4cCI6MTc3NTYwNDYzN30.Ubs_SPrx5L_EDv69CDTgJhHxyCCR3Je39lRO23SB2TA
+
+### Cambiar contraseña
+PUT http://localhost:3000/api/user/password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWQ1NzkyZTA5ZjkyMDk4NjAxYmU5ZmUiLCJpYXQiOjE3NzU2MDQxNDgsImV4cCI6MTc3NTYwNTA0OH0.OVAamxREegFGy_adpCHa6o49vasqnUCUW-yidkYVPm0
+
+{
+  "currentPassword": "87654321",
+  "newPassword": "12345678"
 }

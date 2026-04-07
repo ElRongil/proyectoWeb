@@ -219,3 +219,64 @@ export const logout = async (req, res, next) => {
     next(AppError.internal());
   }
 };
+export const deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const soft = req.query.soft === 'true';
+
+    if (soft) {
+      // Soft delete → marcar deleted: true
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { deleted: true },
+        { new: true }
+      );
+
+      notificationEmitter.emit('user:deleted', user);
+
+      return res.json({
+        message: 'Usuario eliminado (soft delete)',
+        deleted: user.deleted
+      });
+    }
+
+    // Hard delete → borrar de verdad
+    const user = await User.findByIdAndDelete(userId);
+
+    notificationEmitter.emit('user:deleted', user);
+
+    return res.json({
+      message: 'Usuario eliminado permanentemente'
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+export const changePassword = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    // Buscar usuario con contraseña seleccionada
+    const user = await User.findById(userId).select('+password');
+    if (!user) throw AppError.notFound('Usuario no encontrado');
+
+    // Verificar contraseña actual
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) throw AppError.unauthorized('La contraseña actual es incorrecta');
+
+    // Hashear nueva contraseña
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+
+    await user.save();
+
+    notificationEmitter.emit('user:passwordChanged', user);
+
+    res.json({ message: 'Contraseña actualizada correctamente' });
+
+  } catch (error) {
+    next(error);
+  }
+};
