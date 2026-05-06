@@ -5,6 +5,7 @@ import notificationEmitter from '../services/notification.service.js';
 import AppError from '../utils/appError.js';
 import RefreshToken from '../models/refreshToken.js';
 import { sendVerificationEmail, sendInvitationEmail } from '../services/mail.service.js';
+import { uploadImage } from '../services/storage.service.js';
 
 
 export const register = async (req, res, next) => {
@@ -173,11 +174,11 @@ export const uploadLogo = async (req, res, next) => {
     const user = req.user;
     if (!user.company) throw AppError.badRequest('El usuario no tiene compañía asignada');
 
-    const logoUrl = `${process.env.PUBLIC_URL}/uploads/${req.file.filename}`;
+    const { url } = await uploadImage(req.file.buffer, 'bildyapp/logos');
 
     const company = await Company.findByIdAndUpdate(
       user.company,
-      { logo: logoUrl },
+      { logo: url },
       { new: true }
     );
 

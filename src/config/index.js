@@ -11,6 +11,11 @@ const config = {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM || 'BildyApp <noreply@bildyapp.com>'
+  },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET
   }
 };
 
