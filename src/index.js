@@ -1,20 +1,24 @@
 import { setDefaultResultOrder } from 'dns';
 setDefaultResultOrder('ipv4first');
 
+import { createServer } from 'http';
 import mongoose from 'mongoose';
 import app from './app.js';
 import config from './config/index.js';
+import { initSocket } from './socket.js';
 
+const httpServer = createServer(app);
+initSocket(httpServer);
 
 const start = async () => {
   try {
     await mongoose.connect(config.mongoUri, {
       serverSelectionTimeoutMS: 5000,
-      family: 4  // fuerza IPv4
+      family: 4
     });
     console.log('✅ Conectado a MongoDB');
 
-    app.listen(config.port, () => {
+    httpServer.listen(config.port, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
     });
   } catch (error) {

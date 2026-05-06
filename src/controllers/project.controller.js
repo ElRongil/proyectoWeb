@@ -1,6 +1,7 @@
 import Project from '../models/project.js';
 import Client from '../models/client.js';
 import AppError from '../utils/appError.js';
+import { getIO } from '../socket.js';
 
 export const createProject = async (req, res, next) => {
   try {
@@ -16,6 +17,8 @@ export const createProject = async (req, res, next) => {
     if (existing) throw AppError.conflict('Ya existe un proyecto con ese código en tu compañía');
 
     const project = await Project.create({ user, company, client: clientId, name, projectCode, address, email, notes });
+
+    getIO().to(company.toString()).emit('project:new', { project });
 
     res.status(201).json({ project });
   } catch (error) {

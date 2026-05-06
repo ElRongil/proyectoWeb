@@ -4,6 +4,7 @@ import Client from '../models/client.js';
 import AppError from '../utils/appError.js';
 import { uploadImage, uploadPdf } from '../services/storage.service.js';
 import { generateDeliveryNotePdf } from '../services/pdf.service.js';
+import { getIO } from '../socket.js';
 import sharp from 'sharp';
 
 export const createDeliveryNote = async (req, res, next) => {
@@ -22,6 +23,8 @@ export const createDeliveryNote = async (req, res, next) => {
     if (!client) throw AppError.notFound('Cliente no encontrado en tu compañía');
 
     const deliveryNote = await DeliveryNote.create({ ...req.body, user, company });
+
+    getIO().to(company.toString()).emit('deliverynote:new', { deliveryNote });
 
     res.status(201).json({ deliveryNote });
   } catch (error) {
@@ -144,6 +147,11 @@ export const signDeliveryNote = async (req, res, next) => {
 
     deliveryNote.pdfUrl = pdfUrl;
     await deliveryNote.save();
+
+    getIO().to(company.toString()).emit('deliverynote:signed', {
+      deliveryNoteId: deliveryNote._id,
+      signedAt: deliveryNote.signedAt
+    });
 
     res.json({ message: 'Albarán firmado correctamente', signatureUrl, pdfUrl });
   } catch (error) {
