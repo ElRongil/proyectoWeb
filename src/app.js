@@ -1,4 +1,5 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import helmet from 'helmet'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
@@ -36,7 +37,13 @@ app.use(mongoSanitize())
 app.use(express.json({ limit: '10kb' }))
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' })
+  const dbState = mongoose.connection.readyState;
+  res.json({
+    status: 'ok',
+    db: dbState === 1 ? 'connected' : 'disconnected',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
 })
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))

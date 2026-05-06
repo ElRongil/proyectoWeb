@@ -5,10 +5,10 @@ import { createServer } from 'http';
 import mongoose from 'mongoose';
 import app from './app.js';
 import config from './config/index.js';
-import { initSocket } from './socket.js';
+import { initSocket, getIO } from './socket.js';
 
 const httpServer = createServer(app);
-initSocket(httpServer);
+const io = initSocket(httpServer);
 
 const start = async () => {
   try {
@@ -27,10 +27,15 @@ const start = async () => {
   }
 };
 
-process.on('SIGINT', async () => {
+const shutdown = async (signal) => {
+  console.log(`\n${signal} recibido — apagando servidor...`);
+  io.close();
   await mongoose.connection.close();
-  console.log('🔌 Conexión cerrada');
+  console.log('🔌 Conexiones cerradas correctamente');
   process.exit(0);
-});
+};
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 start();
