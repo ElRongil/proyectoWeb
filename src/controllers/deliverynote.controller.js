@@ -2,6 +2,9 @@ import DeliveryNote from '../models/deliverynote.js';
 import Project from '../models/project.js';
 import Client from '../models/client.js';
 import AppError from '../utils/appError.js';
+import { uploadImage, uploadPdf } from '../services/storage.service.js';
+import { generateDeliveryNotePdf } from '../services/pdf.service.js';
+import sharp from 'sharp';
 
 export const createDeliveryNote = async (req, res, next) => {
   try {
@@ -108,11 +111,73 @@ export const deleteDeliveryNote = async (req, res, next) => {
   }
 };
 
-// Implementados en commit 8 (storage + PDF)
 export const signDeliveryNote = async (req, res, next) => {
-  next(AppError.badRequest('Funcionalidad de firma no disponible aún'));
+  try {
+    const { company } = req.user;
+    if (!req.file) throw AppError.badRequest('La imagen de firma es obligatoria');
+
+    const deliveryNote = await DeliveryNote.findOne({ _id: req.params.id, company, deleted: false })
+      .populate('user', 'name lastName email')
+      .populate('client', 'name cif email phone address')
+      .populate('project', 'name projectCode address notes')
+      .populate('company');
+
+    if (!deliveryNote) throw AppError.notFound('Albarán no encontrado');
+    if (deliveryNote.signed) throw AppError.badRequest('El albarán ya está firmado');
+
+    // Optimizar firma con Sharp y subir a Cloudinary
+    const optimizedSignature = await sharp(req.file.buffer)
+      .resize({ width: 800, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const { url: signatureUrl } = await uploadImage(optimizedSignature, 'bildyapp/signatures');
+
+    // Marcar como firmado antes de generar el PDF (para que aparezca en el PDF)
+    deliveryNote.signed = true;
+    deliveryNote.signedAt = new Date();
+    deliveryNote.signatureUrl = signatureUrl;
+
+    // Generar PDF con la firma embebida
+    const pdfBuffer = await generateDeliveryNotePdf(deliveryNote, optimizedSignature);
+    const { url: pdfUrl } = await uploadPdf(pdfBuffer, 'bildyapp/pdfs');
+
+    deliveryNote.pdfUrl = pdfUrl;
+    await deliveryNote.save();
+
+    res.json({ message: 'Albarán firmado correctamente', signatureUrl, pdfUrl });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getDeliveryNotePdf = async (req, res, next) => {
-  next(AppError.badRequest('Funcionalidad de PDF no disponible aún'));
+  try {
+    const { company } = req.user;
+
+    const deliveryNote = await DeliveryNote.findOne({ _id: req.params.id, company, deleted: false })
+      .populate('user', 'name lastName email')
+      .populate('client', 'name cif email phone address')
+      .populate('project', 'name projectCode address notes')
+      .populate('company');
+
+    if (!deliveryNote) throw AppError.notFound('Albarán no encontrado');
+
+    // Si ya está firmado y tiene PDF en la nube, redirigir directamente
+    if (deliveryNote.signed && deliveryNote.pdfUrl) {
+      return res.redirect(deliveryNote.pdfUrl);
+    }
+
+    // Generar PDF al vuelo (sin firma)
+    const pdfBuffer = await generateDeliveryNotePdf(deliveryNote);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="albaran-${deliveryNote._id}.pdf"`,
+      'Content-Length': pdfBuffer.length
+    });
+    res.send(pdfBuffer);
+  } catch (error) {
+    next(error);
+  }
 };
