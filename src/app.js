@@ -7,6 +7,7 @@ import mongoSanitize from '@exortek/express-mongo-sanitize'
 import userRoutes from './routes/user.routes.js'
 import clientRoutes from './routes/client.routes.js'
 import projectRoutes from './routes/project.routes.js'
+import deliveryNoteRoutes from './routes/deliverynote.routes.js'
 import AppError from './utils/appError.js'
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -40,6 +41,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/user', userRoutes)
 app.use('/api/client', clientRoutes)
 app.use('/api/project', projectRoutes)
+app.use('/api/deliverynote', deliveryNoteRoutes)
 
 app.use((req, res, next) => {
   next(AppError.notFound(`Ruta ${req.originalUrl} no encontrada`))
