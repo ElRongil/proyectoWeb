@@ -4,6 +4,7 @@ import { signToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js
 import notificationEmitter from '../services/notification.service.js';
 import AppError from '../utils/appError.js';
 import RefreshToken from '../models/refreshToken.js';
+import { sendVerificationEmail, sendInvitationEmail } from '../services/mail.service.js';
 
 
 export const register = async (req, res, next) => {
@@ -30,6 +31,7 @@ export const register = async (req, res, next) => {
     await RefreshToken.create({ token: refreshToken, user: user._id });
 
     notificationEmitter.emit('user:registered', user);
+    sendVerificationEmail(user).catch(() => {});
 
     res.status(201).json({
       user: { email: user.email, status: user.status, role: user.role },
@@ -314,6 +316,7 @@ export const inviteUser = async (req, res, next) => {
     });
 
     notificationEmitter.emit('user:invited', invitedUser);
+    sendInvitationEmail(invitedUser, tempPassword).catch(() => {});
 
     res.status(201).json({
       message: 'Usuario invitado correctamente',
