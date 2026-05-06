@@ -9,6 +9,7 @@ import clientRoutes from './routes/client.routes.js'
 import projectRoutes from './routes/project.routes.js'
 import deliveryNoteRoutes from './routes/deliverynote.routes.js'
 import AppError from './utils/appError.js'
+import { sendSlackError } from './services/logger.service.js'
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -50,6 +51,10 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500
   const message = err.message || 'Error interno del servidor'
+
+  if (status >= 500) {
+    sendSlackError(err, req);
+  }
 
   res.status(status).json({
     error: true,
