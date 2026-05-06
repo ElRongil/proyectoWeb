@@ -10,6 +10,8 @@ import projectRoutes from './routes/project.routes.js'
 import deliveryNoteRoutes from './routes/deliverynote.routes.js'
 import AppError from './utils/appError.js'
 import { sendSlackError } from './services/logger.service.js'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './config/swagger.js'
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -36,6 +38,8 @@ app.use(express.json({ limit: '10kb' }))
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
