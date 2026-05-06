@@ -1,0 +1,78 @@
+@baseUrl = http://localhost:3000/api
+@token = TU_ACCESS_TOKEN_AQUI
+
+### Crear albarán de horas (con trabajadores)
+POST {{baseUrl}}/deliverynote
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project": "ID_DEL_PROYECTO",
+  "client": "ID_DEL_CLIENTE",
+  "format": "hours",
+  "description": "Instalación eléctrica planta baja",
+  "workDate": "2025-06-15",
+  "workers": [
+    { "name": "Juan García", "hours": 8 },
+    { "name": "Ana López", "hours": 6 }
+  ]
+}
+
+### Crear albarán de horas (simple)
+POST {{baseUrl}}/deliverynote
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project": "ID_DEL_PROYECTO",
+  "client": "ID_DEL_CLIENTE",
+  "format": "hours",
+  "workDate": "2025-06-16",
+  "hours": 4
+}
+
+### Crear albarán de materiales
+POST {{baseUrl}}/deliverynote
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project": "ID_DEL_PROYECTO",
+  "client": "ID_DEL_CLIENTE",
+  "format": "material",
+  "description": "Suministro de cemento",
+  "workDate": "2025-06-16",
+  "material": "Cemento Portland",
+  "quantity": 100,
+  "unit": "kg"
+}
+
+### Listar albaranes (con filtros)
+GET {{baseUrl}}/deliverynote?page=1&limit=10&format=hours&sort=-workDate
+Authorization: Bearer {{token}}
+
+### Listar albaranes por rango de fechas
+GET {{baseUrl}}/deliverynote?from=2025-06-01&to=2025-06-30
+Authorization: Bearer {{token}}
+
+### Listar albaranes firmados de un proyecto
+GET {{baseUrl}}/deliverynote?project=ID_DEL_PROYECTO&signed=true
+Authorization: Bearer {{token}}
+
+### Obtener albarán por ID (con datos completos)
+GET {{baseUrl}}/deliverynote/ID_DEL_ALBARAN
+Authorization: Bearer {{token}}
+
+### Descargar albarán en PDF
+GET {{baseUrl}}/deliverynote/pdf/ID_DEL_ALBARAN
+Authorization: Bearer {{token}}
+
+### Firmar albarán (multipart — usa Postman o REST Client con archivo)
+# PATCH {{baseUrl}}/deliverynote/ID_DEL_ALBARAN/sign
+# Authorization: Bearer {{token}}
+# Content-Type: multipart/form-data
+# Campo: signature = <archivo de imagen>
+
+### Eliminar albarán (solo si no está firmado)
+DELETE {{baseUrl}}/deliverynote/ID_DEL_ALBARAN
+Authorization: Bearer {{token}}

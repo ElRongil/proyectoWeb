@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000/api
+@token = TU_ACCESS_TOKEN_AQUI
+
+### Crear proyecto
+POST {{baseUrl}}/project
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Reforma Oficina Norte",
+  "projectCode": "P2025-001",
+  "client": "ID_DEL_CLIENTE",
+  "address": {
+    "street": "Av. Constitución",
+    "number": "5",
+    "postal": "28002",
+    "city": "Madrid",
+    "province": "Madrid"
+  },
+  "email": "contacto@reforma.com",
+  "notes": "Acceso por entrada trasera"
+}
+
+### Listar proyectos
+GET {{baseUrl}}/project?page=1&limit=10&active=true&sort=-createdAt
+Authorization: Bearer {{token}}
+
+### Listar proyectos de un cliente concreto
+GET {{baseUrl}}/project?client=ID_DEL_CLIENTE
+Authorization: Bearer {{token}}
+
+### Obtener proyecto por ID
+GET {{baseUrl}}/project/ID_DEL_PROYECTO
+Authorization: Bearer {{token}}
+
+### Actualizar proyecto
+PUT {{baseUrl}}/project/ID_DEL_PROYECTO
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Reforma Oficina Norte — Fase 2",
+  "active": false
+}
+
+### Archivar proyecto (soft delete)
+DELETE {{baseUrl}}/project/ID_DEL_PROYECTO?soft=true
+Authorization: Bearer {{token}}
+
+### Listar proyectos archivados
+GET {{baseUrl}}/project/archived
+Authorization: Bearer {{token}}
+
+### Restaurar proyecto archivado
+PATCH {{baseUrl}}/project/ID_DEL_PROYECTO/restore
+Authorization: Bearer {{token}}
+
+### Eliminar proyecto permanentemente
+DELETE {{baseUrl}}/project/ID_DEL_PROYECTO
+Authorization: Bearer {{token}}

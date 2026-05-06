@@ -1,0 +1,55 @@
+@baseUrl = http://localhost:3000/api
+@token = TU_ACCESS_TOKEN_AQUI
+
+### Crear cliente
+POST {{baseUrl}}/client
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Acme S.L.",
+  "cif": "B12345678",
+  "email": "acme@empresa.com",
+  "phone": "600123456",
+  "address": {
+    "street": "Calle Mayor",
+    "number": "10",
+    "postal": "28001",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+### Listar clientes (con paginación y filtro)
+GET {{baseUrl}}/client?page=1&limit=10&name=Acme&sort=-createdAt
+Authorization: Bearer {{token}}
+
+### Obtener cliente por ID
+GET {{baseUrl}}/client/ID_DEL_CLIENTE
+Authorization: Bearer {{token}}
+
+### Actualizar cliente
+PUT {{baseUrl}}/client/ID_DEL_CLIENTE
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Acme Actualizado S.L.",
+  "phone": "600999888"
+}
+
+### Archivar cliente (soft delete)
+DELETE {{baseUrl}}/client/ID_DEL_CLIENTE?soft=true
+Authorization: Bearer {{token}}
+
+### Listar clientes archivados
+GET {{baseUrl}}/client/archived
+Authorization: Bearer {{token}}
+
+### Restaurar cliente archivado
+PATCH {{baseUrl}}/client/ID_DEL_CLIENTE/restore
+Authorization: Bearer {{token}}
+
+### Eliminar cliente permanentemente (hard delete)
+DELETE {{baseUrl}}/client/ID_DEL_CLIENTE
+Authorization: Bearer {{token}}
