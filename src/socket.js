@@ -42,6 +42,12 @@ export const initSocket = (httpServer) => {
 
 // Los controladores llaman a getIO() para emitir eventos
 export const getIO = () => {
-  if (!io) throw new Error('Socket.IO no inicializado');
+  if (!io) {
+    // En tests no se inicializa Socket.IO — devolvemos un stub silencioso
+    if (process.env.NODE_ENV === 'test') {
+      return { to: () => ({ emit: () => {} }) };
+    }
+    throw new Error('Socket.IO no inicializado');
+  }
   return io;
 };

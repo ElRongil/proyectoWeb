@@ -53,6 +53,12 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
+  // MongoDB duplicate key → 409
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0] || 'campo';
+    return res.status(409).json({ error: true, message: `El ${field} ya está en uso` });
+  }
+
   const status = err.statusCode || 500
   const message = err.message || 'Error interno del servidor'
 
