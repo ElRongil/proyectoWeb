@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit'
 import mongoSanitize from '@exortek/express-mongo-sanitize'
 
 import userRoutes from './routes/user.routes.js'
+import clientRoutes from './routes/client.routes.js'
 import AppError from './utils/appError.js'
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -36,6 +37,7 @@ app.get('/api/health', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/user', userRoutes)
+app.use('/api/client', clientRoutes)
 
 app.use((req, res, next) => {
   next(AppError.notFound(`Ruta ${req.originalUrl} no encontrada`))
