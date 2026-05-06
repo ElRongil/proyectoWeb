@@ -40,7 +40,6 @@ export const generateDeliveryNotePdf = (deliveryNote, signatureBuffer = null) =>
 
     const { user, client, project, company } = deliveryNote;
 
-    // Cabecera
     doc.fontSize(20).font('Helvetica-Bold').fillColor('#1a1a2e')
       .text('ALBARÁN', { align: 'center' });
     doc.fontSize(10).font('Helvetica').fillColor('#555555')
@@ -50,32 +49,27 @@ export const generateDeliveryNotePdf = (deliveryNote, signatureBuffer = null) =>
     doc.moveDown(1);
     drawLine(doc);
 
-    // Empresa
     sectionTitle(doc, 'Empresa');
     field(doc, 'Nombre', company?.name);
     field(doc, 'CIF', company?.cif);
     field(doc, 'Dirección', addressText(company?.address));
 
-    // Usuario
     sectionTitle(doc, 'Responsable');
     field(doc, 'Nombre', `${user?.name || ''} ${user?.lastName || ''}`.trim());
     field(doc, 'Email', user?.email);
 
-    // Cliente
     sectionTitle(doc, 'Cliente');
     field(doc, 'Nombre', client?.name);
     field(doc, 'CIF', client?.cif);
     field(doc, 'Email', client?.email);
     field(doc, 'Dirección', addressText(client?.address));
 
-    // Proyecto
     sectionTitle(doc, 'Proyecto');
     field(doc, 'Nombre', project?.name);
     field(doc, 'Código', project?.projectCode);
     field(doc, 'Dirección', addressText(project?.address));
     if (project?.notes) field(doc, 'Notas', project.notes);
 
-    // Detalles del albarán
     sectionTitle(doc, 'Detalles');
     if (deliveryNote.description) field(doc, 'Descripción', deliveryNote.description);
 
@@ -94,7 +88,6 @@ export const generateDeliveryNotePdf = (deliveryNote, signatureBuffer = null) =>
       }
     }
 
-    // Firma
     if (deliveryNote.signed) {
       sectionTitle(doc, 'Firma');
       field(doc, 'Firmado el', formatDate(deliveryNote.signedAt));
@@ -104,7 +97,6 @@ export const generateDeliveryNotePdf = (deliveryNote, signatureBuffer = null) =>
       }
     }
 
-    // Pie
     doc.moveDown(2)
       .fontSize(8).fillColor('#aaaaaa').font('Helvetica')
       .text(`Generado por BildyApp · ${new Date().toLocaleString('es-ES')}`, { align: 'center' });

@@ -43,14 +43,11 @@ const deliveryNoteSchema = new mongoose.Schema(
       type: Date,
       required: true
     },
-    // Campos para format: 'material'
     material: String,
     quantity: Number,
     unit: String,
-    // Campos para format: 'hours'
     hours: Number,
     workers: [workerSchema],
-    // Firma
     signed: {
       type: Boolean,
       default: false

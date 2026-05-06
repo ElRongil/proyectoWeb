@@ -124,7 +124,6 @@ export const updateCompany = async (req, res, next) => {
     let company;
 
     if (isFreelance) {
-      // Autónomo: usa sus propios datos
       company = await Company.findOneAndUpdate(
         { cif: user.nif },
         {
@@ -138,15 +137,12 @@ export const updateCompany = async (req, res, next) => {
       );
       user.role = 'admin';
     } else {
-      // Buscar si ya existe una company con ese CIF
       const existing = await Company.findOne({ cif });
 
       if (existing) {
-        // Unirse a company existente como guest
         company = existing;
         user.role = 'guest';
       } else {
-        // Crear nueva company
         company = await Company.create({
           owner: user._id,
           name,
@@ -228,7 +224,6 @@ export const deleteUser = async (req, res, next) => {
     const soft = req.query.soft === 'true';
 
     if (soft) {
-      // Soft delete → marcar deleted: true
       const user = await User.findByIdAndUpdate(
         userId,
         { deleted: true },
@@ -243,7 +238,6 @@ export const deleteUser = async (req, res, next) => {
       });
     }
 
-    // Hard delete → borrar de verdad
     const user = await User.findByIdAndDelete(userId);
 
     notificationEmitter.emit('user:deleted', user);
@@ -261,15 +255,12 @@ export const changePassword = async (req, res, next) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
 
-    // Buscar usuario con contraseña seleccionada
     const user = await User.findById(userId).select('+password');
     if (!user) throw AppError.notFound('Usuario no encontrado');
 
-    // Verificar contraseña actual
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) throw AppError.unauthorized('La contraseña actual es incorrecta');
 
-    // Hashear nueva contraseña
     const hashed = await bcrypt.hash(newPassword, 10);
     user.password = hashed;
 
@@ -300,7 +291,6 @@ export const inviteUser = async (req, res, next) => {
 
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Contraseña temporal
     const tempPassword = Math.random().toString(36).slice(-10);
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 

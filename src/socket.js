@@ -9,7 +9,6 @@ export const initSocket = (httpServer) => {
     cors: { origin: '*' }
   });
 
-  // Middleware de autenticación JWT en cada conexión WebSocket
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
@@ -29,7 +28,6 @@ export const initSocket = (httpServer) => {
   io.on('connection', (socket) => {
     const companyId = socket.user.company?.toString();
 
-    // Cada usuario entra en la room de su compañía
     if (companyId) {
       socket.join(companyId);
     }
@@ -40,10 +38,8 @@ export const initSocket = (httpServer) => {
   return io;
 };
 
-// Los controladores llaman a getIO() para emitir eventos
 export const getIO = () => {
   if (!io) {
-    // En tests no se inicializa Socket.IO — devolvemos un stub silencioso
     if (process.env.NODE_ENV === 'test') {
       return { to: () => ({ emit: () => {} }) };
     }

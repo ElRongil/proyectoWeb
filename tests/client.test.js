@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { api, registerAndLogin, setupCompany } from './helpers.js';
 
+let mongod;
 let token;
 let clientId;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.DB_URI);
+  mongod = await MongoMemoryServer.create();
+  await mongoose.connect(mongod.getUri());
   const auth = await registerAndLogin('client@test.com', 'password123');
   token = auth.token;
   await setupCompany(token);
@@ -15,6 +18,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
+  await mongod.stop();
 });
 
 describe('POST /api/client', () => {
@@ -94,6 +98,14 @@ describe('PUT /api/client/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.client.name).toBe('Acme Actualizado');
   });
+
+  it('devuelve 404 para cliente inexistente', async () => {
+    const res = await api.put('/api/client/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'No existe' });
+
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('DELETE /api/client/:id (soft)', () => {
@@ -109,6 +121,13 @@ describe('DELETE /api/client/:id (soft)', () => {
     const res = await api.get('/api/client').set('Authorization', `Bearer ${token}`);
     const ids = res.body.clients.map(c => c._id);
     expect(ids).not.toContain(clientId);
+  });
+
+  it('devuelve 404 al hacer soft delete de cliente inexistente', async () => {
+    const res = await api.delete('/api/client/000000000000000000000000?soft=true')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
   });
 });
 
@@ -128,5 +147,38 @@ describe('GET /api/client/archived + PATCH restore', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.client._id).toBe(clientId);
+  });
+
+  it('devuelve 404 al restaurar cliente no archivado', async () => {
+    const res = await api.patch(`/api/client/${clientId}/restore`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/client/:id (hard delete)', () => {
+  let hardClientId;
+
+  beforeAll(async () => {
+    const res = await api.post('/api/client')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Para Borrar', cif: 'Z99999999' });
+    hardClientId = res.body.client._id;
+  });
+
+  it('elimina permanentemente sin soft=true', async () => {
+    const res = await api.delete(`/api/client/${hardClientId}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toMatch(/permanentemente/i);
+  });
+
+  it('devuelve 404 para cliente inexistente en hard delete', async () => {
+    const res = await api.delete('/api/client/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
   });
 });

@@ -9,8 +9,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Memoria en lugar de disco: el buffer llega a req.file.buffer
-// y Sharp + Cloudinary lo procesan antes de persistir nada localmente
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },

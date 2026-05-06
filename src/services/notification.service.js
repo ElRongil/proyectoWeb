@@ -2,7 +2,6 @@ import { EventEmitter } from 'events';
 
 const notificationEmitter = new EventEmitter();
 
-// Listeners — en la práctica final enviarían a Slack
 notificationEmitter.on('user:registered', (user) => {
   console.log(`[EVENT] user:registered → ${user.email}`);
 });

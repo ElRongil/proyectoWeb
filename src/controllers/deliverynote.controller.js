@@ -128,7 +128,6 @@ export const signDeliveryNote = async (req, res, next) => {
     if (!deliveryNote) throw AppError.notFound('Albarán no encontrado');
     if (deliveryNote.signed) throw AppError.badRequest('El albarán ya está firmado');
 
-    // Optimizar firma con Sharp y subir a Cloudinary
     const optimizedSignature = await sharp(req.file.buffer)
       .resize({ width: 800, withoutEnlargement: true })
       .webp({ quality: 80 })
@@ -136,12 +135,10 @@ export const signDeliveryNote = async (req, res, next) => {
 
     const { url: signatureUrl } = await uploadImage(optimizedSignature, 'bildyapp/signatures');
 
-    // Marcar como firmado antes de generar el PDF (para que aparezca en el PDF)
     deliveryNote.signed = true;
     deliveryNote.signedAt = new Date();
     deliveryNote.signatureUrl = signatureUrl;
 
-    // Generar PDF con la firma embebida
     const pdfBuffer = await generateDeliveryNotePdf(deliveryNote, optimizedSignature);
     const { url: pdfUrl } = await uploadPdf(pdfBuffer, 'bildyapp/pdfs');
 
@@ -171,12 +168,10 @@ export const getDeliveryNotePdf = async (req, res, next) => {
 
     if (!deliveryNote) throw AppError.notFound('Albarán no encontrado');
 
-    // Si ya está firmado y tiene PDF en la nube, redirigir directamente
     if (deliveryNote.signed && deliveryNote.pdfUrl) {
       return res.redirect(deliveryNote.pdfUrl);
     }
 
-    // Generar PDF al vuelo (sin firma)
     const pdfBuffer = await generateDeliveryNotePdf(deliveryNote);
 
     res.set({

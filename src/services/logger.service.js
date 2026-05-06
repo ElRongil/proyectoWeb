@@ -1,6 +1,5 @@
-const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
-
 export const sendSlackError = async (err, req) => {
+  const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
   if (!SLACK_WEBHOOK_URL) return;
 
   const payload = {

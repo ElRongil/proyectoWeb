@@ -1,13 +1,16 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { api, registerAndLogin, setupCompany } from './helpers.js';
 
+let mongod;
 let token;
 let clientId;
 let projectId;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.DB_URI);
+  mongod = await MongoMemoryServer.create();
+  await mongoose.connect(mongod.getUri());
   const auth = await registerAndLogin('project@test.com', 'password123');
   token = auth.token;
   await setupCompany(token, { cif: 'B22222222' });
@@ -21,6 +24,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
+  await mongod.stop();
 });
 
 describe('POST /api/project', () => {
@@ -68,6 +72,28 @@ describe('GET /api/project', () => {
     expect(res.status).toBe(200);
     expect(res.body.projects.every(p => p.client._id === clientId || p.client === clientId)).toBe(true);
   });
+
+  it('filtra por nombre parcial', async () => {
+    const res = await api.get('/api/project?name=Norte')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.projects.length).toBeGreaterThan(0);
+  });
+
+  it('filtra por active=true', async () => {
+    const res = await api.get('/api/project?active=true')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+  });
+
+  it('filtra por active=false', async () => {
+    const res = await api.get('/api/project?active=false')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+  });
 });
 
 describe('GET /api/project/:id', () => {
@@ -79,6 +105,13 @@ describe('GET /api/project/:id', () => {
     expect(res.body.project._id).toBe(projectId);
     expect(res.body.project.client).toHaveProperty('name');
   });
+
+  it('devuelve 404 para ID inexistente', async () => {
+    const res = await api.get('/api/project/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('PUT /api/project/:id', () => {
@@ -89,6 +122,30 @@ describe('PUT /api/project/:id', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.project.name).toBe('Obra Norte Actualizada');
+  });
+
+  it('actualiza el proyecto con un cliente válido', async () => {
+    const res = await api.put(`/api/project/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ client: clientId });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('rechaza cliente inexistente con 404', async () => {
+    const res = await api.put(`/api/project/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ client: '000000000000000000000000' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('devuelve 404 para proyecto inexistente', async () => {
+    const res = await api.put('/api/project/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'No existe' });
+
+    expect(res.status).toBe(404);
   });
 });
 
@@ -110,5 +167,37 @@ describe('DELETE /api/project soft + restore', () => {
     const res = await api.patch(`/api/project/${projectId}/restore`)
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
+  });
+
+  it('devuelve 404 al restaurar proyecto no archivado', async () => {
+    const res = await api.patch(`/api/project/${projectId}/restore`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/project hard delete', () => {
+  let hardDeleteId;
+
+  beforeAll(async () => {
+    const res = await api.post('/api/project')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Obra Hard Delete', projectCode: 'HDL001', client: clientId });
+    hardDeleteId = res.body.project._id;
+  });
+
+  it('elimina permanentemente sin soft=true', async () => {
+    const res = await api.delete(`/api/project/${hardDeleteId}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toMatch(/permanentemente/i);
+  });
+
+  it('devuelve 404 para proyecto inexistente en hard delete', async () => {
+    const res = await api.delete('/api/project/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
   });
 });
