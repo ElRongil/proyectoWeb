@@ -122,8 +122,8 @@ router.post('/', validate(createProjectSchema), createProject);
 /**
  * @swagger
  * /project/{id}:
- *   put:
- *     summary: Actualizar un proyecto
+ *   patch:
+ *     summary: Actualizar parcialmente un proyecto
  *     tags: [Proyectos]
  *     parameters:
  *       - in: path
@@ -137,10 +137,12 @@ router.post('/', validate(createProjectSchema), createProject);
  *     responses:
  *       200:
  *         description: Proyecto actualizado
+ *       400:
+ *         description: Datos de entrada inválidos
  *       404:
  *         description: Proyecto no encontrado
  */
-router.put('/:id', validate(updateProjectSchema), updateProject);
+router.patch('/:id', validate(updateProjectSchema), updateProject);
 
 /**
  * @swagger

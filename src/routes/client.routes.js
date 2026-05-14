@@ -113,8 +113,8 @@ router.post('/', validate(createClientSchema), createClient);
 /**
  * @swagger
  * /client/{id}:
- *   put:
- *     summary: Actualizar un cliente
+ *   patch:
+ *     summary: Actualizar parcialmente un cliente
  *     tags: [Clientes]
  *     parameters:
  *       - in: path
@@ -128,10 +128,12 @@ router.post('/', validate(createClientSchema), createClient);
  *     responses:
  *       200:
  *         description: Cliente actualizado
+ *       400:
+ *         description: Datos de entrada inválidos
  *       404:
  *         description: Cliente no encontrado
  */
-router.put('/:id', validate(updateClientSchema), updateClient);
+router.patch('/:id', validate(updateClientSchema), updateClient);
 
 /**
  * @swagger

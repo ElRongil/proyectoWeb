@@ -114,9 +114,9 @@ describe('GET /api/project/:id', () => {
   });
 });
 
-describe('PUT /api/project/:id', () => {
-  it('actualiza el proyecto', async () => {
-    const res = await api.put(`/api/project/${projectId}`)
+describe('PATCH /api/project/:id', () => {
+  it('actualiza el proyecto parcialmente', async () => {
+    const res = await api.patch(`/api/project/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Obra Norte Actualizada' });
 
@@ -125,7 +125,7 @@ describe('PUT /api/project/:id', () => {
   });
 
   it('actualiza el proyecto con un cliente válido', async () => {
-    const res = await api.put(`/api/project/${projectId}`)
+    const res = await api.patch(`/api/project/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ client: clientId });
 
@@ -133,7 +133,7 @@ describe('PUT /api/project/:id', () => {
   });
 
   it('rechaza cliente inexistente con 404', async () => {
-    const res = await api.put(`/api/project/${projectId}`)
+    const res = await api.patch(`/api/project/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ client: '000000000000000000000000' });
 
@@ -141,7 +141,7 @@ describe('PUT /api/project/:id', () => {
   });
 
   it('devuelve 404 para proyecto inexistente', async () => {
-    const res = await api.put('/api/project/000000000000000000000000')
+    const res = await api.patch('/api/project/000000000000000000000000')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'No existe' });
 

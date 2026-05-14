@@ -89,9 +89,9 @@ describe('GET /api/client/:id', () => {
   });
 });
 
-describe('PUT /api/client/:id', () => {
-  it('actualiza el cliente', async () => {
-    const res = await api.put(`/api/client/${clientId}`)
+describe('PATCH /api/client/:id', () => {
+  it('actualiza el cliente parcialmente', async () => {
+    const res = await api.patch(`/api/client/${clientId}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Acme Actualizado' });
 
@@ -100,11 +100,29 @@ describe('PUT /api/client/:id', () => {
   });
 
   it('devuelve 404 para cliente inexistente', async () => {
-    const res = await api.put('/api/client/000000000000000000000000')
+    const res = await api.patch('/api/client/000000000000000000000000')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'No existe' });
 
     expect(res.status).toBe(404);
+  });
+
+  it('es idempotente: dos llamadas con el mismo body producen el mismo estado final', async () => {
+    const body = { name: 'Nombre Idempotente', cif: 'B11111111' };
+
+    const res1 = await api.patch(`/api/client/${clientId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body);
+
+    const res2 = await api.patch(`/api/client/${clientId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body);
+
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(res2.body.client.name).toBe(res1.body.client.name);
+    expect(res2.body.client.cif).toBe(res1.body.client.cif);
+    expect(res2.body.client._id).toBe(res1.body.client._id);
   });
 });
 
